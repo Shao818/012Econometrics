@@ -1,0 +1,118 @@
+---
+title: "NARDL模型推导"
+author: "王芍"
+date: "`r Sys.Date()`"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
+---
+
+```{r eval=FALSE, include=FALSE}
+library(rstudioapi)
+tempDir <- tempfile()  #创建临时文件
+dir.create(tempDir)    #创建临时文件夹
+currentdir<-"C:/Mirror/012Econometrics"    #设置Rmarkdown路径
+currentdir<-paste(currentdir,"/NARDL.html",sep="")  #标注文件名
+file.copy(currentdir, tempDir)     #临时文件的复制
+htmlFile <- file.path(tempDir, "NARDL.html")  #标注文件名
+# (code to write some content to the file)
+viewer <- getOption("viewer")
+viewer(htmlFile)
+```
+
+ARDL(3,3)模型一般形式： 
+$$y_{t}=\alpha_{0}+\phi_{1}y_{t-1}+\phi_{2}y_{t-2}++\phi_{3}y_{t-3}+\theta_{0}x_{t} +\theta_{1}x_{t-1} +\theta_{2}x_{t-2} +\theta_{3}x_{t-3}+\epsilon_{t}   \tag{1}$$
+
+两边取均值，则有： 
+$$y^{*}=\alpha_{0}+\phi_{1}y^{*}+\phi_{2}y^{*}+\phi_{3}y^{*}+\theta_{0}x^{*}+\theta_{1}x^{*}+\theta_{2}x^{*}+\theta_{3}x^{*} \tag{2}$$ 上式可转化为： $$y^{*}=\frac{\alpha_{0}}{1-\phi_{1}-\phi_{2}-\phi_{3}}+\frac{\theta_{0}+\theta_{1}+\theta_{2}+\theta_{3}}{1-\phi_{1}-\phi_{2}-\phi_{3}}x^{*} \tag{3}$$
+公式(3)中$\frac{\theta_{0}+\theta_{1}+\theta_{2}+\theta_{3}}{1-\phi_{1}-\phi_{2}-\phi_{3}}$为$y_{t}$关于$x_{t}$的长期乘数； 在公式（1）的左右两端同时减去$y_{t-1}$;同时，在公式的右侧同时加减上$\theta_{0}x_{t-1},\theta_{2}x_{t-1},\theta_{3}x_{t-1}$,则得： 
+$$
+\begin{eqnarray}y_{t}-y_{t-1}
+    &=& \alpha_{0}-y_{t-1}+\phi_{1}y_{t-1}+\phi_{2}y_{t-2} \\
+    &+& \color{#00F}{\phi_{2}y_{t-1}-\phi_{2}y_{t-1}}+\phi_{3}y_{t-3}+\color{#00F}{\phi_{3}y_{t-1}-\phi_{3}y_{t-1}} \\
+    &+& \theta_{0}x_{t} +\theta_{1}x_{t-1} +\theta_{2}x_{t-2} +\theta_{3}x_{t-3}  \\
+    &+&\color{#00F}{\theta_{0}x_{t-1}+\theta_{2}x_{t-1}+\theta_{3}x_{t-1} -\theta_{0}x_{t-1}-\theta_{2}x_{t-1}-\theta_{3}x_{t-1}} + \epsilon_{t} \tag{4}
+\end{eqnarray}
+$$
+
+以上公式可以再次转化为：
+
+$$
+\begin{eqnarray}\Delta y_{t}
+    &=& \alpha_{0}+(-1)(1-\phi_{1}-\color{#00F}{\phi_{2}-\phi_{3}})y_{t-1}+(\color{#00F}{\theta_{0}}+\theta_{1}+\color{#00F}{\theta_{2}+\theta_{3}})x_{t-1} \\
+    &+& \color{#F00}{\phi_{2}y_{t-2}-\phi_{2}y_{t-1}+\phi_{3}y_{t-3}-\phi_{3}y_{t-1}} \\
+    &+& \color{#F80}{\theta_{0}x_{t} -\theta_{0}x_{t-1}+\theta_{2}x_{t-2} -\theta_{2}x_{t-1}+\theta_{3}x_{t-3} -\theta_{3}x_{t-1}} +\epsilon_{t}\tag{5} \\
+\end{eqnarray}
+$$
+
+ 再次转化后边红色部分与黄色部分： 
+ $$
+\begin{eqnarray}\Delta y_{t}
+    &=& \alpha_{0}+(-1)(1-\phi_{1}-\color{#00F}{\phi_{2}-\phi_{3}})y_{t-1}+(\color{#00F}{\theta_{0}}+\theta_{1}+\color{#00F}{\theta_{2}+\theta_{3}})x_{t-1} \\
+    &+& \color{#F00}{\phi_{2}y_{t-2}-\phi_{2}y_{t-1}+\phi_{3}y_{t-3}-\phi_{3}y_{t-1}}+\color{#0F0}{\phi_{2}y_{t-2}-\phi_{2}y_{t-2}+\phi_{3}y_{t-2}-\phi_{3}y_{t-2}} \\
+    &+& \color{#F80}{\theta_{0}x_{t} -\theta_{0}x_{t-1}+\theta_{2}x_{t-2} -\theta_{2}x_{t-1}+\theta_{3}x_{t-3} -\theta_{3}x_{t-1}}  \\
+    &+& \color{#0F0}{\theta_{2}x_{t-2}-\theta_{2}x_{t-2} +\theta_{3}x_{t-2}-\theta_{3}x_{t-2}}+\epsilon_{t} \tag{6} \\
+\end{eqnarray}
+$$
+ 
+
+
+剔除抵消项：
+
+$$\begin{eqnarray}\Delta y_{t}
+    &=& \alpha_{0}+(-1)(1-\phi_{1}-\color{#00F}{\phi_{2}-\phi_{3}})y_{t-1} \\
+    &+& (\color{#00F}{\theta_{0}}+\theta_{1}+\color{#00F}{\theta_{2}+\theta_{3}})x_{t-1} \\
+    &-& \color{#F00}{\phi_{2}y_{t-1}-\phi_{3}y_{t-1}+\phi_{3}y_{t-3}} \\
+    &+& \color{#0F0}{\phi_{2}y_{t-2}+\phi_{3}y_{t-2}-\phi_{3}y_{t-2}} \\
+    &+& \color{#F80}{\theta_{0}x_{t} -\theta_{0}x_{t-1}-\theta_{2}x_{t-1}-\theta_{3}x_{t-1}+\theta_{3}x_{t-3}} \\
+    &+& \color{#0F0}{\theta_{2}x_{t-2}+\theta_{3}x_{t-2}-\theta_{3}x_{t-2}}+\epsilon_{t} \tag{7} \\
+\end{eqnarray}
+$$
+
+
+
+后边红绿和黄绿再次整合：
+$$
+\begin{eqnarray}\Delta y_{t}
+    &=& \alpha_{0}+(-1)(1-\phi_{1}-\color{#00F}{\phi_{2}-\phi_{3}})y_{t-1}+(\color{#00F}{\theta_{0}}+\theta_{1}+\color{#00F}{\theta_{2}+\theta_{3}})x_{t-1} \\
+    &-& \color{#F00}{(\phi_{2}\Delta y_{t-1}+\phi_{3}\Delta y_{t-1}+\phi_{3}\Delta y_{t-2})} \\
+    &+& \color{#F80}{\theta_{0}\Delta x_{t} -(\theta_{2}\Delta x_{t-1}+\theta_{3}\Delta x_{t-1}+\theta_{3}\Delta x_{t-2})}  \\
+    &+& \epsilon_{t} \tag{8} \\
+\end{eqnarray}
+$$
+
+
+最后转化为误差修正形式：
+$$
+\begin{eqnarray}\Delta y_{t}
+    &=& \alpha_{0}+(-1)(1-\phi_{1}-\color{#00F}{\phi_{2}-\phi_{3}})y_{t-1} \\
+    &+& (\color{#00F}{\theta_{0}}+\theta_{1}+\color{#00F}{\theta_{2}+\theta_{3}})x_{t-1} \\
+    &+& \color{#F00}{(-1)(\phi_{2}+\phi_{3})\Delta y_{t-1}+(-1)\phi_{3}\Delta y_{t-2}} \\
+    &+& \color{#F80}{\theta_{0}\Delta x_{t} +(-1)(\theta_{2}+\theta_{3})\Delta x_{t-1}+(-1)\theta_{3}\Delta x_{t-2}} \\
+    &+& \epsilon_{t} \tag{9} \\
+\end{eqnarray}
+$$
+
+
+
+
+对比公式(3)和公式(10)可知，$\frac{\theta_{0}+\theta_{1}+\theta_{2}+\theta_{3}}{1-\phi_{1}-\phi_{2}-\phi_{3}}$为$y_{t}$关于$x_{t}$的长期乘数；,以上公式可以进一步简化为：
+
+$$
+\Delta y_{t}=\alpha_{0}+\rho y_{t-1}+\Theta x_{t-1} \color{#F00}{+\sum_{j=1}^{p-1}
+\gamma_{j}\Delta y_{t-j}}+\color{#F80}{\sum_{j=0}^{q-1}\varphi_{j}\Delta x_{t-j}}  
+                    +\epsilon_{t} \tag{10}
+$$
+
+此时:
+
+-   长期乘数即为：$-\frac{\Theta}{\rho}$;
+
+-   $\rho =\sum_{j=1}^{p} \phi_{j}-1$
+
+-   $\gamma_{j}=-\sum _ {i=j+1}^{p} \phi_{i}$,其中$j=1,....p-1$.
+
+-   $\Theta=\sum _ {j=0}^{q} \theta_{j}$.
+
+-   $\varphi_{0}=\theta_{0},\varphi_{j}=-\sum _ {i=j+1}^{q} \theta_{j}$其中$j=1,....p-1$.
